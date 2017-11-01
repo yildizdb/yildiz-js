@@ -1,0 +1,36 @@
+{
+  "name": "krakn-js",
+  "version": "0.14.0",
+  "description": "Client for krakn graph database",
+  "main": "index.js",
+  "scripts": {
+    "test": "DEBUG=krakn:* _mocha -R spec --exit --timeout 5000 test/int/*"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/krystianity/krakn-js.git"
+  },
+  "keywords": [
+    "krakn",
+    "graph",
+    "database",
+    "client",
+    "js"
+  ],
+  "author": "Christian Froehlingsdorf <chris@5cf.de>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/krystianity/krakn-js/issues"
+  },
+  "homepage": "https://github.com/krystianity/krakn-js#readme",
+  "dependencies": {
+    "bluebird": "^3.5.1",
+    "debug": "^3.1.0",
+    "request": "^2.83.0"
+  },
+  "devDependencies": {
+    "body-parser": "^1.18.2",
+    "express": "^4.16.2",
+    "mocha": "^4.0.1"
+  }
+}
