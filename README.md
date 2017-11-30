@@ -20,3 +20,5 @@ const krakn = new KraknClient({
     //..
 })();
 ```
+
+Find the list of functions [here](https://github.com/krakndb/krakn-js/blob/master/lib/HttpClient.js#L29).
