@@ -3,5 +3,7 @@
 const HttpClient = require("./lib/HttpClient.js");
 
 module.exports = {
-    HttpClient
+    default: HttpClient,
+    HttpClient,
+    KraknClient: HttpClient
 };
