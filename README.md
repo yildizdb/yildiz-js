@@ -11,6 +11,7 @@
 const {YildizClient} = require("yildiz-js");
 
 const yildiz = new YildizClient({
+    prefix: "mydb",
     proto: "http",
     host: "localhost",
     port: 3058
@@ -18,7 +19,7 @@ const yildiz = new YildizClient({
 
 (async () => {
 
-    const leftNode = "Susanne";
+    const leftNode = "Simone";
     const rightNode = "Holger";
 
     //store hash translation of node string representations
