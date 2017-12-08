@@ -14,7 +14,8 @@ const yildiz = new YildizClient({
     prefix: "mydb",
     proto: "http",
     host: "localhost",
-    port: 3058
+    port: 3058,
+    token: "bla-bla-bla-bla" //optional
 });
 
 (async () => {
