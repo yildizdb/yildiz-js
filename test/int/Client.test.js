@@ -72,7 +72,7 @@ describe("Client INT", () => {
             await client.raw("/badcode", {}, 200);
         } catch(error){
             errorThrown = true;
-            assert.equal(error.message, "Response status code: 400 does match expected status code: 200.");
+            assert.equal(error.message, "Response status code: 400 does match expected status code: 200. No error message present in body.");
         }
     
         assert.ok(errorThrown);
