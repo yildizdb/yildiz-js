@@ -47,5 +47,8 @@ const yildiz = new YildizClient({
 
     const increaseResult = await yildiz.increaseEdgeDepth(storedLeftNode.id, storedRightNode.id, relation);
     const deleteResult = await yildiz.deleteEdge(storedLeftNode.id, storedRightNode.id, relation);
+
+    //the relation creation above can be done faster via relation upserting:
+    const resultIds = await yildiz.upsertRelation(leftNode, rightNode);
 })();
 ```
