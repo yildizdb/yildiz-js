@@ -23,12 +23,14 @@ describe("Client INT", () => {
         app.use(bodyParser.json());
 
         app.get("/test", (req, res) => {
+            assert.equal(req.headers.connection, "keep-alive");
             res.status(202);
             res.set("hi", "ho");
             res.end();
         });
 
         app.post("/test-again", (req, res) => {
+            assert.equal(req.headers.connection, "keep-alive");
             res.json(req.body);
         });
 
@@ -41,6 +43,7 @@ describe("Client INT", () => {
     });
 
     after(done => {
+        client.close();
         server.close(done);
     });
 
