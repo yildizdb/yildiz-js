@@ -1,4 +1,4 @@
-# yildiz graph database client - yildiz-js
+# yildiz event relation database client - yildiz-js
 
 - Node.js client using yildiz's http interface
 - this client is thin wrapper around async http requests
