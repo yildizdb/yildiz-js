@@ -14,7 +14,9 @@ describe("Client INT", () => {
     const client = new HttpClient({
         proto: "http",
         host: "localhost",
-        port
+        port,
+        disableKeepAlive: false,
+        enableTimings: true
     });
 
     before(done => {

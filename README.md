@@ -15,7 +15,10 @@ const yildiz = new YildizClient({
     proto: "http",
     host: "localhost",
     port: 3058,
-    token: "bla-bla-bla-bla" //optional
+    token: "bla-bla-bla-bla", //optional
+    disableKeepAlive: false, //optional - disable keep alive pool
+    enableTimings: false //optional - adds time object to response of yildiz.raw()
+    timeoutMs: 7500 //optional - timeout in milliseconds for the request
 });
 
 (async () => {
