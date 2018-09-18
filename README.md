@@ -1,4 +1,4 @@
-# yildiz graph database client - yildiz-js
+# yildiz event relation database client - yildiz-js
 
 - Node.js client using yildiz's http interface
 - this client is thin wrapper around async http requests
@@ -15,7 +15,10 @@ const yildiz = new YildizClient({
     proto: "http",
     host: "localhost",
     port: 3058,
-    token: "bla-bla-bla-bla" //optional
+    token: "bla-bla-bla-bla", //optional
+    disableKeepAlive: false, //optional - disable keep alive pool
+    enableTimings: false //optional - adds time object to response of yildiz.raw()
+    timeoutMs: 7500 //optional - timeout in milliseconds for the request
 });
 
 (async () => {

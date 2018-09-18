@@ -1,9 +1,13 @@
 {
   "name": "yildiz-js",
-  "version": "2.5.0",
+  "version": "2.9.0",
   "description": "Client for yildiz graph database",
   "main": "index.js",
   "scripts": {
+    "build": "npm run compile",
+    "precompile": "npm run clean",
+    "compile": "tsc --pretty",
+    "clean": "rm -rf build",
     "test": "DEBUG=yildiz:* _mocha -R spec --exit --timeout 5000 test/int/*"
   },
   "repository": {
@@ -26,11 +30,17 @@
   "dependencies": {
     "bluebird": "^3.5.1",
     "debug": "^3.1.0",
-    "request": "^2.83.0"
+    "request": "^2.85.0"
   },
   "devDependencies": {
+    "@types/debug": "^0.0.30",
+    "@types/node": "^10.10.1",
+    "@types/request": "^2.47.1",
     "body-parser": "^1.18.2",
-    "express": "^4.16.2",
-    "mocha": "^4.0.1"
+    "ts-node": "^3.0.4",
+    "tslint": "^5.8.0",
+    "typescript": "^2.6.2",
+    "express": "^4.16.3",
+    "mocha": "^5.0.4"
   }
 }

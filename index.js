@@ -1,6 +1,6 @@
 "use strict";
 
-const HttpClient = require("./lib/HttpClient.js");
+const { HttpClient } = require("./build/HttpClient.js");
 
 module.exports = {
     default: HttpClient,
