@@ -1,80 +1,94 @@
-"use strict";
+import Debug from "debug";
+import http from "http";
 
-const debug = require("debug")("yildiz:http");
-const http = require("http");
+import { getInstance } from "./promRequest";
+import { GenericObject } from "./interface/Generic";
 
-const {getInstance} = require("./promRequest.js");
-
+const debug = Debug("yildiz:http");
 const DEFAULT_PREFIX = "default";
 
-class HttpClient {
-    
-    constructor(config = {}){
+export interface Config {
+    prefix?: string;
+    proto?: string;
+    host?: string;
+    port?: string | number;
+    token?: string;
+    disableKeepAlive: boolean;
+    enableTimings: boolean;
+    timeoutMs: number;
+}
 
-        let {
-            prefix,
+export class HttpClient {
+
+    private agent: http.Agent | undefined;
+    private timeoutMs: number;
+    private req: any;
+
+    constructor(config: Config) {
+
+        const {
+            prefix = DEFAULT_PREFIX,
             proto,
             host,
             port,
             token,
             disableKeepAlive,
             enableTimings,
-            timeoutMs
+            timeoutMs,
         } = config;
 
-        prefix = prefix || DEFAULT_PREFIX;
+        this.agent = undefined;
 
-        this._agent = undefined;
-        if(disableKeepAlive !== true){
-            this._agent = new http.Agent({
+        if (disableKeepAlive !== true) {
+            this.agent = new http.Agent({
                 keepAlive: true,
                 keepAliveMsecs: 3000,
                 maxSockets: 200,
-                maxFreeSockets: 150
+                maxFreeSockets: 150,
             });
         }
 
         this.timeoutMs = timeoutMs || 7500;
 
-        this._req = getInstance(prefix, token, proto, host, port, this._agent, enableTimings);
+        this.req = getInstance(prefix, token, proto, host, port, this.agent, enableTimings);
         debug(`${proto}://${host}:${port} via prefix = ${prefix}.`);
     }
 
-    raw(path, options, expectedStatusCode){
+    public raw(path: string, options: GenericObject, expectedStatusCode?: number | string) {
 
-        if(options && typeof options === "object" && !options.timeout){
+        if (options && typeof options === "object" && !options.timeout) {
             options.timeout = this.timeoutMs;
         }
 
-        return this._req(path, options, expectedStatusCode);
+        return this.req(path, options, expectedStatusCode);
     }
 
-    async getServerVersion(){
+    public async getServerVersion() {
         const {body} = await this.raw("/", {}, 200);
         const {version} = body;
         return version;
     }
 
-    async isAlive(){
+    public async isAlive() {
         await this.raw("/admin/healthcheck", {}, 200);
     }
 
-    async getHealth(){
+    public async getHealth() {
         const {body} = await this.raw("/admin/health", {}, 200);
         return body;
     }
 
-    async getStats(){
+    public async getStats() {
         const {body} = await this.raw("/admin/stats", {}, 200);
         return body;
     }
 
-    async getMetrics(){
+    public async getMetrics() {
         const {body} = await this.raw("/admin/metrics", {}, 200);
         return body;
     }
 
-    async checkAuth(){
+    public async checkAuth() {
         const {status} = await this.raw("/admin/authcheck", {}, 200);
         return status;
     }
@@ -83,39 +97,39 @@ class HttpClient {
 
     /**
      * translates and stores a new value
-     * @param {string} value - value that will be translated 
+     * @param {string} value - value that will be translated
      * @param {object} data  - optional data object
      * @param {boolean} ttld  - if this value should be deleted after ttl, defaults to false
      * @returns {Promise.<Translation>} - a promise that resolves into the created translation object
      */
-    async storeTranslation(value, data = {}, ttld = false){
+    public async storeTranslation(value: string | number, data = {}, ttld = false) {
         const {body} = await this.raw("/translator/translate-and-store", {
             method: "POST",
             body: {
                 value,
                 data,
-                ttld
-            }
+                ttld,
+            },
         }, 201);
         return body;
     }
 
-    async getTranslation(identifier){
+    public async getTranslation(identifier: string | number) {
         const {status, body} = await this.raw(`/translator/${identifier}`, {});
-        switch(status){
+        switch (status) {
             case 200: return body;
             case 404: return null;
             default: throw new Error(`Unexpected status code: ${status}.`);
         }
     }
 
-    async deleteTranslation(identifier){
+    public async deleteTranslation(identifier: string | number) {
 
         const {status, body} = await this.raw(`/translator/${identifier}`, {
-            method: "DELETE"
+            method: "DELETE",
         });
 
-        switch(status){
+        switch (status) {
             case 200: return body;
             case 404: return null;
             default: throw new Error(`Unexpected status code: ${status}.`);
@@ -129,38 +143,38 @@ class HttpClient {
      * @param {number|string} identifier - hash identifier (if a string is passed, it will be converted automatically)
      * @param {object} data - optional data object
      * @param {boolean} ttld - if this value should be deleted after ttl, defaults to false
-     * @param {object} _extend - can be used to set custom extended database columns
+     * @param {object} extend - can be used to set custom extended database columns
      * @returns {Promise.<Node>} - a promise that resolves into the created node object
      */
-    async createNode(identifier, data = {}, ttld = false, _extend = {}){
+    public async createNode(identifier: string | number, data = {}, ttld = false, extend: any = {}) {
         const {body} = await this.raw("/node", {
             method: "POST",
             body: {
                 identifier,
                 data,
                 ttld,
-                _extend
-            }
+                extend,
+            },
         }, 201);
         return body;
     }
 
-    async getNode(identifier){
+    public async getNode(identifier: string | number) {
         const {status, body} = await this.raw(`/node/${identifier}`, {});
-        switch(status){
+        switch (status) {
             case 200: return body;
             case 404: return null;
             default: throw new Error(`Unexpected status code: ${status}.`);
         }
     }
 
-    async deleteNode(identifier){
+    public async deleteNode(identifier: string | number) {
 
         const {status, body} = await this.raw(`/node/${identifier}`, {
-            method: "DELETE"
+            method: "DELETE",
         });
 
-        switch(status){
+        switch (status) {
             case 200: return body;
             case 404: return null;
             default: throw new Error(`Unexpected status code: ${status}.`);
@@ -176,10 +190,10 @@ class HttpClient {
      * @param {string} relation - optional relation description
      * @param {object} data - optional data object
      * @param {boolean} ttld - if this value should be deleted after ttl, defaults to false
-     * @param {object} _extend - can be used to set custom extended database column
+     * @param {object} extend - can be used to set custom extended database column
      * @returns {Promise.<{success}>} - a promise that resolves into an object with a field called success (boolean value)
      */
-    async createEdge(leftId, rightId, relation = "1", attributes = {}, ttld = false, _extend = {}){
+    public async createEdge(leftId: string | number, rightId: string | number, relation = "1", attributes = {}, ttld = false, extend = {}) {
         const {body} = await this.raw("/edge", {
             method: "POST",
             body: {
@@ -188,84 +202,84 @@ class HttpClient {
                 relation,
                 attributes,
                 ttld,
-                _extend
-            }
+                extend,
+            },
         }, 201);
         return body;
     }
 
-    async getEdge(leftId, rightId, relation){
+    public async getEdge(leftId: string | number, rightId: string | number, relation: string | number) {
 
-        const {status, body} = await this.raw(`/edge/${leftId}/${rightId}/${relation}`);
+        const {status, body} = await this.raw(`/edge/${leftId}/${rightId}/${relation}`, {});
 
-        switch(status){
+        switch (status) {
             case 200: return body;
             case 404: return null;
             default: throw new Error(`Unexpected status code: ${status}.`);
         }
     }
 
-    async increaseEdgeDepth(leftId, rightId, relation = "1"){
+    public async increaseEdgeDepth(leftId: string | number, rightId: string | number, relation = "1") {
         const {body} = await this.raw("/edge/depth/increase", {
             method: "PUT",
             body: {
                 leftId,
                 rightId,
-                relation
-            }
+                relation,
+            },
         }, 200);
 
         return body;
     }
 
-    async decreaseEdgeDepth(leftId, rightId, relation = "1"){
+    public async decreaseEdgeDepth(leftId: string | number, rightId: string | number, relation = "1") {
         const {body} = await this.raw("/edge/depth/decrease", {
             method: "PUT",
             body: {
                 leftId,
                 rightId,
-                relation
-            }
+                relation,
+            },
         }, 200);
 
         return body;
     }
 
-    async deleteEdge(leftId, rightId, relation){
+    public async deleteEdge(leftId: string | number, rightId: string | number, relation: string | number) {
         const {status, body} = await this.raw(`/edge/${leftId}/${rightId}/${relation}`, {
-            method: "DELETE"
+            method: "DELETE",
         });
 
-        switch(status){
+        switch (status) {
             case 200: return body;
             case 404: return null;
             default: throw new Error(`Unexpected status code: ${status}.`);
         }
     }
 
-    async getAllEdgesFromLeft(leftId, relation){
+    public async getAllEdgesFromLeft(leftId: string | number, relation: string | number) {
         const {body} = await this.raw(`/edge/left/${leftId}/${relation}`, {}, 200);
         return body;
     }
 
-    async getAllEdgesFromRight(rightId, relation){
+    public async getAllEdgesFromRight(rightId: string | number, relation: string | number) {
         const {body} = await this.raw(`/edge/right/${rightId}/${relation}`, {}, 200);
         return body;
     }
 
-    async getAllEdgesForLeftOrRight(id, relation){
+    public async getAllEdgesForLeftOrRight(id: string | number, relation: string | number) {
         const {body} = await this.raw(`/edge/both/${id}/${relation}`, {}, 200);
         return body;
     }
 
     /* ACCESS */
 
-    async getTranslatedEdgeInfoForNodes(values = []){
+    public async getTranslatedEdgeInfoForNodes(values = []) {
         const {body} = await this.raw("/access/translated-edge-info", {
             method: "POST",
             body: {
-                values
-            }
+                values,
+            },
         }, 200);
         return body;
     }
@@ -288,23 +302,33 @@ class HttpClient {
      * @param {number} edgeTime - time of the event that caused this edge in unix epoch milliseconds
      * @returns {Promise.<{object}>} - result contains the created/selected ids and identifiers
      */
-    async upsertRelation(leftNodeIdentifierVal, rightNodeIdentifierVal, leftNodeData = {}, rightNodeData = {}, ttld = false,
-        relation = "1", edgeData = {}, depthBeforeCreation = true, isPopularRightNode = false, edgeTime = null){
+
+    public async upsertRelation(
+        leftNodeIdentifierVal: string | number,
+        rightNodeIdentifierVal: string | number,
+        leftNodeData: any = {},
+        rightNodeData: any = {},
+        ttld: boolean = false,
+        relation: string | number = "1",
+        edgeData: any = {},
+        depthBeforeCreation: boolean = true,
+        isPopularRightNode: boolean = false,
+        edgeTime?: string | number) {
 
         const {body} = await this.raw("/access/upsert-singular-relation", {
             method: "POST",
             body: {
-                leftNodeIdentifierVal, 
-                rightNodeIdentifierVal, 
-                leftNodeData, 
+                leftNodeIdentifierVal,
+                rightNodeIdentifierVal,
+                leftNodeData,
                 rightNodeData,
-                ttld, 
-                relation, 
+                ttld,
+                relation,
                 edgeData,
                 depthBeforeCreation,
                 isPopularRightNode,
-                edgeTime: edgeTime || Date.now()
-            }
+                edgeTime: edgeTime || Date.now(),
+            },
         }, 200);
 
         return body;
@@ -328,8 +352,17 @@ class HttpClient {
      * @param {number} edgeTime - time of the event that caused this edge in unix epoch milliseconds
      * @returns {Promise.<{object}>} - result contains the created/selected ids and identifiers
      */
-    async upsertRelationNoTransaction(leftNodeIdentifierVal, rightNodeIdentifierVal, leftNodeData = {}, rightNodeData = {}, ttld = false,
-        relation = "1", edgeData = {}, depthBeforeCreation = true, isPopularRightNode = false, edgeTime = null){
+    public async upsertRelationNoTransaction(
+        leftNodeIdentifierVal: string | number,
+        rightNodeIdentifierVal: string | number,
+        leftNodeData: any = {},
+        rightNodeData: any = {},
+        ttld: boolean = false,
+        relation: string | number = "1",
+        edgeData: any = {},
+        depthBeforeCreation: boolean = true,
+        isPopularRightNode: boolean = false,
+        edgeTime?: string | number) {
 
         const {body} = await this.raw("/access/upsert-singular-relation-no-transaction", {
             method: "POST",
@@ -343,8 +376,8 @@ class HttpClient {
                 edgeData,
                 depthBeforeCreation,
                 isPopularRightNode,
-                edgeTime: edgeTime || Date.now()
-            }
+                edgeTime: edgeTime || Date.now(),
+            },
         }, 200);
 
         return body;
@@ -352,48 +385,46 @@ class HttpClient {
 
     /* RAW */
 
-    async runRawQuery(query, replacements){
+    public async runRawQuery(query: string, replacements: string) {
         const {body} = await this.raw("/raw/query", {
             method: "POST",
             body: {
                 query,
-                replacements
-            }
+                replacements,
+            },
         }, 200);
-        return body; //results
+        return body; // results
     }
 
-    async runRawSpread(query, replacements){
+    public async runRawSpread(query: string, replacements: string) {
         const {body} = await this.raw("/raw/spread", {
             method: "POST",
             body: {
                 query,
-                replacements
-            }
+                replacements,
+            },
         }, 200);
-        return body; //metadata
+        return body; // metadata
     }
 
     /* PATH */
 
-    async getShortestPath(start, end){
+    public async getShortestPath(start: string | number, end: string | number) {
         const {body} = await this.raw("/path/shortest-path", {
             method: "POST",
             body: {
                 start,
-                end
-            }
+                end,
+            },
         }, 200);
         return body;
     }
 
-    close(){
+    public close() {
 
-        if(this._agent){
-            this._agent.destroy();
-            this._agent = undefined;
+        if (this.agent) {
+            this.agent.destroy();
+            this.agent = undefined;
         }
     }
 }
-
-module.exports = HttpClient;
