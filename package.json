@@ -7,6 +7,7 @@
     "build": "npm run compile",
     "precompile": "npm run clean",
     "compile": "tsc --pretty",
+    "prepublish": "npm run compile",
     "clean": "rm -rf build",
     "test": "DEBUG=yildiz:* _mocha -R spec --exit --timeout 5000 test/int/*"
   },
@@ -42,5 +43,9 @@
     "typescript": "^2.6.2",
     "express": "^4.16.3",
     "mocha": "^5.0.4"
-  }
+  },
+  "pre-commit": [
+    "compile"
+  ],
+  "pre-push": []
 }
