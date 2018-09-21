@@ -6,6 +6,8 @@
     "declaration": true,
     "sourceMap": true,
     "outDir": "./build",
+    "resolveJsonModule": true,
+    "esModuleInterop": true,
     "strict": true,
     "noImplicitAny": true,
   },
