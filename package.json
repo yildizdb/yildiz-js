@@ -1,8 +1,11 @@
 {
   "name": "yildiz-js",
   "version": "3.0.0",
-  "description": "Client for yildiz graph database",
+  "description": "Client for Yildiz Graph Database",
   "main": "index.js",
+  "engines" : {
+    "node" : ">=9.0.0"
+  },
   "scripts": {
     "build": "npm run compile",
     "precompile": "npm run clean",
@@ -23,6 +26,10 @@
     "js"
   ],
   "author": "Christian Froehlingsdorf <chris@5cf.de>",
+  "contributors": [
+    "Christian Froehlingsdorf <chris@5cf.de>",
+    "Rian Josua Masikome (RJ) <rj@masiko.me>"
+  ],
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/yildizdb/yildiz-js/issues"

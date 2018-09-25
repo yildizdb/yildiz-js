@@ -1,57 +1,28 @@
-# yildiz event relation database client - yildiz-js
+<h1 align="center">Yildiz Graph Database Node.js Client</h1>
+<p align="center">
+  <img alt="yildiz" src="docs/images/YildizDBLogo.png" width="362">
+</p>
+<p align="center">
+  Thin graph database layer on top of Google Bigtable.
+</p>
 
-- Node.js client using yildiz's http interface
-- this client is thin wrapper around async http requests
-- you can find the full curl doc [here](https://github.com/yildizdb/yildiz/blob/master/docs/curl.md).
-- install via `npm install yildiz-js`
-- use `DEBUG=yildiz:*` to get debug logs
+[![Version][version-badge]][package] [![MIT License][license-badge]][license] ![node][node-badge] [![Swagger][swagger-badge]][swagger-url]
 
-```javascript
-"use strict";
-const {YildizClient} = require("yildiz-js");
+# Infos
 
-const yildiz = new YildizClient({
-    prefix: "mydb",
-    proto: "http",
-    host: "localhost",
-    port: 3058,
-    token: "bla-bla-bla-bla", //optional
-    disableKeepAlive: false, //optional - disable keep alive pool
-    enableTimings: false //optional - adds time object to response of yildiz.raw()
-    timeoutMs: 7500 //optional - timeout in milliseconds for the request
-});
+* Node.js client using YildizDB's HTTP interface
+* This client is a thin wrapper around async HTTP requests
+* HTTP API Description: [Open API][swagger-url]
+* Install via `npm install yildiz-js`
+* Use `DEBUG=yildiz:*` to get debug logs
+* More details on YildizDB can be found [here](https://github.com/yildizdb/yildiz)
+* Sample on how to use this client is [here](docs/example.md)
 
-(async () => {
-
-    const leftNode = "Simone";
-    const rightNode = "Holger";
-
-    //store hash translation of node string representations
-    const translatedLeftNode = await yildiz.storeTranslation(leftNode, {}, false);
-    const translatedRightNode = await yildiz.storeTranslation(rightNode, {}, false);
-    //translatedLeftNode.identifier === murmurhash3(leftNode)
-
-    //create 2 nodes
-    const storedLeftNode = await yildiz.createNode(translatedLeftNode.identifier, {}, ttld = false, {});
-    const storedRightNode = await yildiz.createNode(rightNode, {}, ttld = false, {}); //passing strings will translate them (but not translation will be stored!)
-
-    //create an edge between nodes
-    const relation = "loves";
-    const createResult = await yildiz.createEdge(storedLeftNode.id, storedRightNode.id, relation, {}, ttld = false, {});
-
-    if(!createResult.success){
-        return console.error("Failed to create edge.");
-    }
-
-    const edge = await yildiz.getEdge(storedLeftNode.id, storedRightNode.id, relation);
-    console.log(edge);
-
-    //getAllEdgesFromLeft, getAllEdgesFromRight, getAllEdgesForLeftOrRight
-
-    const increaseResult = await yildiz.increaseEdgeDepth(storedLeftNode.id, storedRightNode.id, relation);
-    const deleteResult = await yildiz.deleteEdge(storedLeftNode.id, storedRightNode.id, relation);
-
-    //the relation creation above can be done faster via relation upserting:
-    const resultIds = await yildiz.upsertRelation(leftNode, rightNode);
-})();
-```
+<!-- badges -->
+[version-badge]: https://badge.fury.io/js/yildiz-js.svg
+[package]: https://www.npmjs.com/package/yildiz-js
+[license-badge]: https://img.shields.io/npm/l/yildiz-js.svg
+[license]: https://opensource.org/licenses/MIT
+[swagger-url]: https://petstore.swagger.io/?url=https://raw.githubusercontent.com/yildizdb/yildiz/master/docs/swagger.yml
+[node-badge]: https://img.shields.io/node/v/yildiz-js.svg
+[swagger-badge]: https://img.shields.io/badge/Swagger%20UI-OK-orange.svg
